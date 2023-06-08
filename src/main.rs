@@ -73,9 +73,7 @@ mod app {
     fn usart_rx(cx: usart_rx::Context) {
         let rx = cx.local.serial_debug_rx;
         if let Ok(byte) = rx.read() {
-            match cx.local.serial_debug_producer.enqueue(byte) {
-                _ => {}
-            }
+            cx.local.serial_debug_producer.enqueue(byte).ok();
         }
     }
 }
