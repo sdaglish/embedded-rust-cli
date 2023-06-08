@@ -16,6 +16,8 @@ mod app {
         serial::{config::Config, Rx, Serial, Tx},
     };
 
+    use heapless::spsc::{Consumer, Producer, Queue};
+
     #[shared]
     struct Shared {}
 
@@ -48,6 +50,8 @@ mod app {
         .unwrap()
         .split();
 
+        serial_debug_rx.listen();
+
         (
             Shared {},
             Local {
@@ -55,5 +59,11 @@ mod app {
                 serial_debug_rx,
             },
         )
+    }
+
+    #[task(binds = USART2, local = [serial_debug_rx])]
+    fn usart_rx(cx: usart_rx::Context) {
+        let rx = cx.local.serial_debug_rx;
+        if let Ok(byte) = rx.read() {}
     }
 }
