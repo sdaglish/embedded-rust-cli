@@ -133,6 +133,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-rust-cli"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 0.2.7",
+ "heapless",
+ "panic-reset",
+ "rtic",
+ "rtic-monotonics",
+ "rtt-target",
+ "stm32f4xx-hal",
+]
+
+[[package]]
 name = "embedded-storage"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -251,13 +264,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d5439c4ad607c3c23abf66de8c8bf57ba8adcd1f129e699851a6e43935d339d"
 
 [[package]]
-name = "panic-rtt-target"
-version = "0.1.2"
+name = "panic-reset"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d6ab67bc881453e4c90f958c657c1303670ea87bc1a16e87fd71a40f656dce9"
+checksum = "6cf1ff2a5b1a478dd94572aa43476b6630e72071cbd016985003ad3903a3a4f5"
 dependencies = [
  "cortex-m",
- "rtt-target 0.3.1",
 ]
 
 [[package]]
@@ -388,15 +400,6 @@ dependencies = [
 
 [[package]]
 name = "rtt-target"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "065d6058bb1204f51a562a67209e1817cf714759d5cf845aa45c75fa7b0b9d9b"
-dependencies = [
- "ufmt-write",
-]
-
-[[package]]
-name = "rtt-target"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3afa12c77ba1b9bf560e4039a9b9a08bb9cde0e9e6923955eeb917dd8d5cf303"
@@ -509,19 +512,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "test1"
-version = "0.1.0"
-dependencies = [
- "embedded-hal 0.2.7",
- "heapless",
- "panic-rtt-target",
- "rtic",
- "rtic-monotonics",
- "rtt-target 0.4.0",
- "stm32f4xx-hal",
 ]
 
 [[package]]

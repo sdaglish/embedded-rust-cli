@@ -2,7 +2,8 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 
-use panic_rtt_target as _;
+// use panic_rtt_target as _;
+use panic_reset as _;
 use rtic::app;
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SDIO])]
@@ -25,9 +26,12 @@ mod app {
     struct Local {
         serial_debug_tx: Tx<USART2>,
         serial_debug_rx: Rx<USART2>,
+
+        serial_debug_producer: Producer<'static, u8, 256>,
+        serial_debug_consumer: Consumer<'static, u8, 256>,
     }
 
-    #[init]
+    #[init(local = [serial_debug_queue: Queue<u8, 256> = Queue::new()])]
     fn init(cx: init::Context) -> (Shared, Local) {
         let dp = cx.device;
         let rcc = dp.RCC.constrain();
@@ -52,18 +56,26 @@ mod app {
 
         serial_debug_rx.listen();
 
+        let (serial_debug_producer, serial_debug_consumer) = cx.local.serial_debug_queue.split();
+
         (
             Shared {},
             Local {
                 serial_debug_tx,
                 serial_debug_rx,
+                serial_debug_producer,
+                serial_debug_consumer,
             },
         )
     }
 
-    #[task(binds = USART2, local = [serial_debug_rx])]
+    #[task(binds = USART2, local = [serial_debug_rx, serial_debug_producer])]
     fn usart_rx(cx: usart_rx::Context) {
         let rx = cx.local.serial_debug_rx;
-        if let Ok(byte) = rx.read() {}
+        if let Ok(byte) = rx.read() {
+            match cx.local.serial_debug_producer.enqueue(byte) {
+                _ => {}
+            }
+        }
     }
 }
