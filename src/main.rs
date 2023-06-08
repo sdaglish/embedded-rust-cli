@@ -10,11 +10,20 @@ mod app {
     use rtic_monotonics::systick::*;
     use stm32f4xx_hal::prelude::*;
 
+    use stm32f4xx_hal::{
+        pac::USART2,
+        prelude::*,
+        serial::{config::Config, Rx, Serial, Tx},
+    };
+
     #[shared]
     struct Shared {}
 
     #[local]
-    struct Local {}
+    struct Local {
+        serial_debug_tx: Tx<USART2>,
+        serial_debug_rx: Rx<USART2>,
+    }
 
     #[init]
     fn init(cx: init::Context) -> (Shared, Local) {
@@ -25,6 +34,26 @@ mod app {
         let systick_mono_token = rtic_monotonics::create_systick_token!();
         Systick::start(cx.core.SYST, 50_000_000, systick_mono_token);
 
-        (Shared {}, Local {})
+        // Uart Rx is PA3, Tx is PA2
+        let gpioa = dp.GPIOA.split();
+        let tx = gpioa.pa2.into_alternate();
+        let rx = gpioa.pa3.into_alternate();
+
+        let (serial_debug_tx, mut serial_debug_rx) = Serial::new(
+            dp.USART2,
+            (tx, rx),
+            Config::default().baudrate(115_200.bps()),
+            &clocks,
+        )
+        .unwrap()
+        .split();
+
+        (
+            Shared {},
+            Local {
+                serial_debug_tx,
+                serial_debug_rx,
+            },
+        )
     }
 }
